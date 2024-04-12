@@ -3,20 +3,15 @@ import java.util.*;
 class Node {
     int[] posicao;
     Node pai;
-    double g, h, f;
-    //int custo;
+    double heuristica, heurCusto;
+    int custo;
 
-    public Node(int[] posicao, Node pai, double g, double h, double f) {
+    public Node(int[] posicao, Node pai, double heuristica, double heurCusto, int custo) {
         this.posicao = posicao;
         this.pai = pai;
-        this.g = g;
-        this.h = h;
-        this.f = f;
-    }
-
-    @Override
-    public String toString() {
-        return STR."Nodo{posicao=\{Arrays.toString(posicao)}, pai=\{pai}, g=\{g}, j=\{h}, f=\{f}\{'}'}";
+        this.heuristica = heuristica;
+        this.heurCusto = heurCusto;
+        this.custo = custo;
     }
 }
 
@@ -40,32 +35,32 @@ public class Main {
 
         char mapa[][] = {
                 {'▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓',},
-                {'▓', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '▓',},
-                {'▓', '0', '0', '0', '0', '0', '0', '0', '0', '@', '0', '0', '0', '0', '0', '0', '0', '0', '0', '▓',},
-                {'▓', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '▓',},
-                {'▓', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '▓',},
-                {'▓', '0', '0', '0', '0', '0', '0', '0', '0', '▓', '0', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓',},
-                {'▓', '0', '0', '0', '0', '0', '0', '0', '0', '▓', '0', '▓', '0', '0', '0', '0', '0', '0', '0', '▓',},
-                {'▓', '0', '0', '0', '0', '0', '0', '0', '0', '▓', '0', '▓', '0', '0', '0', '0', '0', '0', '0', '▓',},
-                {'▓', '0', '0', '0', '0', '0', '0', '0', '0', '▓', '3', '▓', '0', '0', '0', '0', '0', '0', '0', '▓',},
-                {'▓', '0', '0', '0', '0', '0', '0', '0', '0', '▓', '3', '▓', '0', '0', '0', '0', '0', '0', '0', '▓',},
-                {'▓', '0', '0', '0', '0', '0', '0', '0', '0', '▓', '3', '▓', '0', '0', '0', '0', '0', '0', '0', '▓',},
-                {'▓', '0', '0', '0', '0', '0', '0', '0', '0', '▓', '3', '▓', '0', '0', '0', '0', '0', '0', '0', '▓',},
-                {'▓', '0', '0', '0', '0', '0', '0', '0', '0', '▓', '0', '▓', '0', '0', '0', '0', '0', '0', '0', '▓',},
-                {'▓', '0', '0', '0', '0', '0', '0', '0', '▓', '▓', '0', '▓', '0', '0', '0', '0', '0', '0', '0', '▓',},
-                {'▓', '0', '0', '0', '0', '0', '0', '0', '0', '$', '0', '0', '0', '0', '0', '0', '0', '0', '0', '▓',},
-                {'▓', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '▓',},
-                {'▓', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '▓',},
-                {'▓', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '▓',},
-                {'▓', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '▓',},
+                {'▓', '0', '0', '0', '0', '0', '▓', '0', '0', '0', '0', '0', '▓', '0', '0', '▓', '0', '0', '0', '▓',},
+                {'▓', '▓', '▓', '▓', '0', '0', '▓', '0', '0', '@', '0', '0', '▓', '0', '0', '0', '0', '0', '0', '▓',},
+                {'▓', '0', '0', '▓', '0', '0', '0', '0', '0', '0', '0', '0', '▓', '0', '0', '▓', '0', '▓', '▓', '▓',},
+                {'▓', '0', '0', '▓', '3', '▓', '▓', '3', '▓', '▓', '▓', '▓', '▓', '0', '0', '▓', '0', '0', '0', '▓',},
+                {'▓', '0', '0', '0', '0', '0', '▓', '3', '▓', '0', '0', '0', '0', '0', '0', '▓', '0', '▓', '0', '▓',},
+                {'▓', '0', '0', '0', '0', '0', '0', '3', '▓', '▓', '▓', '0', '▓', '▓', '▓', '▓', '0', '▓', '0', '▓',},
+                {'▓', '▓', '▓', '▓', '▓', '▓', '▓', '0', '0', '0', '0', '0', '▓', '0', '0', '0', '0', '0', '0', '▓',},
+                {'▓', '0', '0', '0', '▓', '0', '0', '0', '0', '▓', '0', '0', '▓', '0', '▓', '▓', '▓', '0', '▓', '▓',},
+                {'▓', '0', '0', '0', '▓', '0', '0', '▓', '0', '▓', '0', '0', '▓', '0', '0', '0', '▓', '0', '▓', '▓',},
+                {'▓', '0', '0', '▓', '▓', '0', '0', '▓', '0', '▓', '0', '0', '▓', '▓', '▓', '▓', '▓', '0', '▓', '▓',},
+                {'▓', '0', '0', '0', '0', '0', '0', '▓', '0', '▓', '0', '0', '0', '0', '0', '0', '0', '0', '0', '▓',},
+                {'▓', '0', '▓', '▓', '▓', '▓', '▓', '▓', '0', '▓', '0', '0', '0', '0', '0', '▓', '▓', '▓', '0', '▓',},
+                {'▓', '0', '0', '0', '0', '▓', '0', '0', '0', '▓', '▓', '▓', '▓', '▓', '0', '▓', '0', '▓', '0', '▓',},
+                {'▓', '0', '0', '0', '0', '▓', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '▓', '0', '▓',},
+                {'▓', '▓', '0', '▓', '▓', '▓', '▓', '0', '▓', '▓', '0', '0', '▓', '▓', '▓', '▓', '▓', '▓', '0', '▓',},
+                {'▓', '▓', '0', '0', '0', '0', '0', '0', '0', '▓', '0', '0', '▓', '0', '0', '0', '0', '0', '0', '▓',},
+                {'▓', '0', '0', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '0', '0', '0', '0', '0', '▓', '▓', '▓', '▓', '▓',},
+                {'▓', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '▓', '0', '0', '0', '0', '0', '0', '▓',},
                 {'▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓',}};
-
+        //12 8
         int[] inicio = {2, 9};
         int treasures = 1;
         int t = treasures;
         //int[][] treasureLoc = new int[t][2];
         int[][] treasureLoc = {{14, 9}};
-        mapa[14][9] = '$';
+        mapa[treasureLoc[0][0]][treasureLoc[0][1]] = '$';
 
 /*        do {
             int row = random.nextInt(20);
@@ -118,6 +113,14 @@ public class Main {
             }
         return false;
     }
+    public boolean contemNode(List<Node> lista, Node node) {
+        for (Node n : lista) {
+            if (Arrays.equals(n.posicao, node.posicao)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     public void impMapa(char Mapa[][], List<Node> caminho, List<Node> explorados) {
         //Imprime os números de coordenada de coluna bunitin
@@ -158,9 +161,13 @@ public class Main {
         }
     }
 
-    public int verificiarBioma(Node noAtual, char[][] mapa) {
-        return ((int) mapa[noAtual.posicao[0]][noAtual.posicao[1]]);
-
+    public int getCusto(int i, int j, char[][] mapa) {
+        int bioma = Character.getNumericValue(mapa[i][j]);
+        if (bioma == 0) return 1;
+        else if (bioma == 1) return 10;
+        else if (bioma == 2) return 4;
+        else if (bioma == 3) return 20;
+        return 1;
     }
 
     public List<Node> encontrarCaminho(char[][] mapa, int[] inicio, int[][] treasureLoc) {
@@ -170,18 +177,22 @@ public class Main {
         List<Node> fechado = new ArrayList<>();
 
         // Cria o nó ond o boneco está e adiciona no começo da lista
-        Node noInicial = new Node(inicio, null, 0, heurEuclidean(inicio, treasureLoc), 0);
+        int custo = getCusto(inicio[0], inicio[1], mapa);
+
+        Node noInicial = new Node(inicio, null, 0, heurEuclidean(inicio, treasureLoc), custo);
         aberto.add(noInicial);
 
         // Enquanto houver nós na lista aberta
         while (!aberto.isEmpty()) {
+
             // Encontra o nó com menor valor de f na lista aberta
             Node noAtual = aberto.get(0);
             for (int i = 1; i < aberto.size(); i++) {
-                if (aberto.get(i).f < noAtual.f) {
+                if (aberto.get(i).heurCusto < noAtual.heurCusto) {
                     noAtual = aberto.get(i);
                 }
             }
+
             // Remove o nó atual da lista aberta e adiciona à lista fechada
             aberto.remove(noAtual);
             fechado.add(noAtual);
@@ -190,6 +201,7 @@ public class Main {
             if (isTreasure(treasureLoc, noAtual)) {
                 return reconstruirCaminho(noAtual);
             }
+            System.out.println("{" + noAtual.posicao[0] + "," +noAtual.posicao[1] + "}" );
 
             // Gera os sucessores do nó atual
             List<Node> sucessores = gerarSucessores(noAtual, mapa);
@@ -200,21 +212,15 @@ public class Main {
                     continue;
                 }
 
-                int bioma = verificiarBioma(noAtual, mapa);
-                int custo = 0;
+                custo = getCusto(noAtual.posicao[0],noAtual.posicao[1], mapa);
 
-                // Calcula o custo do caminho até o sucessor com base no bioma atual
-                if (bioma == 0) custo = 1;
-                else if (bioma == 1) custo = 10;
-                else if (bioma == 2) custo = 4;
-                else if (bioma == 3) custo = 20;
-                double novoG = noAtual.g + custo; // Supõe que o custo de movimento entre células adjacentes é 1
+                int novoG = noAtual.custo + custo;
 
                 // Se o sucessor não está na lista aberta ou o novo custo é menor que o custo anterior
-                if (!contemNode(aberto, sucessor) || novoG < sucessor.g) {
-                    sucessor.g = novoG;
-                    sucessor.h = heurEuclidean(sucessor.posicao, treasureLoc);
-                    sucessor.f = sucessor.g + sucessor.h;
+                if (!contemNode(aberto, sucessor) || novoG < sucessor.custo) {
+                    sucessor.custo = novoG;
+                    sucessor.heuristica = heurEuclidean(sucessor.posicao, treasureLoc);
+                    sucessor.heurCusto = sucessor.custo + sucessor.heuristica;
                     sucessor.pai = noAtual;
 
                     // Adiciona o sucessor à lista aberta se não estiver presente
@@ -224,7 +230,7 @@ public class Main {
                 }
             }
         }
-
+        System.out.println("nenhum caminho encontrado");
         // Se nenhum caminho foi encontrado, retorna null
         return null;
     }
@@ -248,32 +254,23 @@ public class Main {
         return caminho;
     }
 
-    public boolean contemNode(List<Node> lista, Node node) {
-        for (Node n : lista) {
-            if (Arrays.equals(n.posicao, node.posicao)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public List<Node> gerarSucessores(Node no, char[][] mapa) {
+    public List<Node> gerarSucessores(Node nodeAtual, char[][] mapa) {
         List<Node> sucessores = new ArrayList<>();
 
-        //CIMA (i-1, j)
-        //BAIXO (i+1, j)
-        //DIREITA (i, j+1)
-        //ESQUERDA (i, j-1)
-
-        int[][] direcoes = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        int[][] direcoes = {
+                {1, 0}, //BAIXO (i+1, j)
+                {-1, 0},  //CIMA (i-1, j)
+                {0, 1}, //DIREITA (i, j+1)
+                {0, -1}}; //ESQUERDA (i, j-1)
 
         for (int[] direcao : direcoes) {
-            int x = no.posicao[0] + direcao[0];
-            int y = no.posicao[1] + direcao[1];
+            int i = nodeAtual.posicao[0] + direcao[0];
+            int j = nodeAtual.posicao[1] + direcao[1];
 
             // Verifica se o sucessor não é uma parede
-            if (mapa[x][y] != '▓') {
-                Node sucessor = new Node(new int[]{x, y}, null, 0, 0, 0);
+            if (mapa[i][j] != '▓') {
+                int custo = getCusto(i,j,mapa);
+                Node sucessor = new Node(new int[]{i, j}, nodeAtual, 0, 0, custo);
                 sucessores.add(sucessor);
                 explorados.add(sucessor);
             }
