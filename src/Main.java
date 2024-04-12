@@ -1,9 +1,10 @@
 import java.util.*;
 
-class Node{
+class Node {
     int[] posicao;
     Node pai;
-    double g,h,f;
+    double g, h, f;
+    //int custo;
 
     public Node(int[] posicao, Node pai, double g, double h, double f) {
         this.posicao = posicao;
@@ -21,50 +22,61 @@ class Node{
 
 public class Main {
 
-    final String RESET = "\u001B[0m", RED = "\u001B[41m", GREEN = "\u001B[42m", YELLOW = "\u001B[43m", BLUE = "\u001B[44m",MAGENTA = "\u001B[45m", CYAN = "\u001B[46m", GREY = "\u001B[47m", BLACK = "\u001B[40m", WHITE = "\u001B[7m";
+    final String RESET = "\u001B[0m", RED = "\u001B[41m", GREEN = "\u001B[42m", YELLOW = "\u001B[43m", BLUE = "\u001B[44m", MAGENTA = "\u001B[45m", CYAN = "\u001B[46m", GREY = "\u001B[47m", BLACK = "\u001B[40m", WHITE = "\u001B[7m";
     public static Random random = new Random();
 
-    public static Scanner LER = new Scanner (System.in);
+    public static Scanner LER = new Scanner(System.in);
 
     List<Node> explorados = new ArrayList<>();
 
     public void main(String[] args) {
+        //▓ - Parede
+        //0 - Solido e Plano
+        //1 - Rochoso
+        //2 - Arenoso
+        //3 - Pântano
+        //@ - Agente
+        //$ - Moedas
+
         char mapa[][] = {
-                {'1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1',},
-                {'1', ' ', ' ', ' ', ' ', ' ', '1', ' ', ' ', ' ', ' ', ' ', '1', ' ', ' ', '1', ' ', ' ', ' ', '1',},
-                {'1', '1', '1', '1', ' ', ' ', '1', ' ', ' ', '@', ' ', ' ', '1', ' ', ' ', ' ', ' ', ' ', ' ', '1',},
-                {'1', ' ', ' ', '1', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '1', ' ', ' ', '1', ' ', '1', '1', '1',},
-                {'1', ' ', ' ', '1', ' ', '1', '1', ' ', '1', '1', '1', '1', '1', ' ', ' ', '1', ' ', ' ', ' ', '1',},
-                {'1', ' ', ' ', ' ', ' ', ' ', '1', ' ', '1', ' ', ' ', ' ', ' ', ' ', ' ', '1', ' ', '1', ' ', '1',},
-                {'1', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '1', '1', '1', ' ', '1', '1', '1', '1', ' ', '1', ' ', '1',},
-                {'1', '1', '1', '1', '1', '1', '1', ' ', ' ', ' ', ' ', ' ', '1', ' ', ' ', ' ', ' ', ' ', ' ', '1',},
-                {'1', ' ', ' ', ' ', '1', ' ', ' ', ' ', ' ', '1', ' ', ' ', '1', ' ', '1', '1', '1', ' ', '1', '1',},
-                {'1', ' ', ' ', ' ', '1', ' ', ' ', '1', ' ', '1', ' ', ' ', '1', ' ', ' ', ' ', '1', ' ', '1', '1',},
-                {'1', ' ', ' ', '1', '1', ' ', ' ', '1', ' ', '1', ' ', ' ', '1', '1', '1', '1', '1', ' ', '1', '1',},
-                {'1', ' ', ' ', ' ', ' ', ' ', ' ', '1', ' ', '1', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '1',},
-                {'1', ' ', ' ', '1', '1', '1', '1', '1', ' ', '1', ' ', ' ', ' ', ' ', ' ', '1', '1', '1', ' ', '1',},
-                {'1', ' ', ' ', ' ', ' ', '1', ' ', ' ', ' ', '1', '1', '1', '1', '1', ' ', '1', ' ', '1', ' ', '1',},
-                {'1', ' ', ' ', ' ', ' ', '1', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '1', ' ', '1',},
-                {'1', '1', ' ', '1', '1', '1', '1', ' ', '1', '1', ' ', ' ', '1', '1', '1', '1', '1', '1', ' ', '1',},
-                {'1', '1', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '1', ' ', ' ', '1', ' ', ' ', ' ', ' ', ' ', ' ', '1',},
-                {'1', ' ', ' ', '1', '1', '1', '1', '1', '1', '1', ' ', ' ', ' ', ' ', ' ', '1', '1', '1', '1', '1',},
-                {'1', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '1', ' ', ' ', ' ', ' ', ' ', ' ', '1',},
-                {'1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1',}};
+                {'▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓',},
+                {'▓', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '▓',},
+                {'▓', '0', '0', '0', '0', '0', '0', '0', '0', '@', '0', '0', '0', '0', '0', '0', '0', '0', '0', '▓',},
+                {'▓', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '▓',},
+                {'▓', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '▓',},
+                {'▓', '0', '0', '0', '0', '0', '0', '0', '0', '▓', '0', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓',},
+                {'▓', '0', '0', '0', '0', '0', '0', '0', '0', '▓', '0', '▓', '0', '0', '0', '0', '0', '0', '0', '▓',},
+                {'▓', '0', '0', '0', '0', '0', '0', '0', '0', '▓', '0', '▓', '0', '0', '0', '0', '0', '0', '0', '▓',},
+                {'▓', '0', '0', '0', '0', '0', '0', '0', '0', '▓', '3', '▓', '0', '0', '0', '0', '0', '0', '0', '▓',},
+                {'▓', '0', '0', '0', '0', '0', '0', '0', '0', '▓', '3', '▓', '0', '0', '0', '0', '0', '0', '0', '▓',},
+                {'▓', '0', '0', '0', '0', '0', '0', '0', '0', '▓', '3', '▓', '0', '0', '0', '0', '0', '0', '0', '▓',},
+                {'▓', '0', '0', '0', '0', '0', '0', '0', '0', '▓', '3', '▓', '0', '0', '0', '0', '0', '0', '0', '▓',},
+                {'▓', '0', '0', '0', '0', '0', '0', '0', '0', '▓', '0', '▓', '0', '0', '0', '0', '0', '0', '0', '▓',},
+                {'▓', '0', '0', '0', '0', '0', '0', '0', '▓', '▓', '0', '▓', '0', '0', '0', '0', '0', '0', '0', '▓',},
+                {'▓', '0', '0', '0', '0', '0', '0', '0', '0', '$', '0', '0', '0', '0', '0', '0', '0', '0', '0', '▓',},
+                {'▓', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '▓',},
+                {'▓', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '▓',},
+                {'▓', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '▓',},
+                {'▓', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '▓',},
+                {'▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓', '▓',}};
 
         int[] inicio = {2, 9};
-        int[] treasureLoc = {0, 0};
         int treasures = 1;
+        int t = treasures;
+        //int[][] treasureLoc = new int[t][2];
+        int[][] treasureLoc = {{14, 9}};
+        mapa[14][9] = '$';
 
-        do {
+/*        do {
             int row = random.nextInt(20);
             int col = random.nextInt(20);
-            if (mapa[col][row] != '1') {
+            if (mapa[col][row] != '▓') {
                 mapa[col][row] = '$';
-                treasures--;
-                treasureLoc[0] = col;
-                treasureLoc[1] = row;
+                treasureLoc[treasures - t][0] = col;
+                treasureLoc[treasures - t][1] = row;
+                t--;
             }
-        } while (treasures > 0);
+        } while (t > 0);*/
         System.out.println();
 
         impMapa(mapa, null, null);
@@ -72,11 +84,6 @@ public class Main {
         System.out.println();
         System.out.println("Press enter to continue...");
         LER.nextLine();
-
-
-
-
-
 
         List<Node> caminho = encontrarCaminho(mapa, inicio, treasureLoc);
         explorados.removeAll(caminho);
@@ -91,8 +98,18 @@ public class Main {
         }
         System.out.println();
 
+        impMapa(mapa, caminho, null);
+
     }
-    //verificar coordenadas principais
+
+    public boolean isTreasure(int[][] treasureLoc, Node nodeAtual) {
+        for (int i = 0; i < treasureLoc.length; i++) {
+            if (nodeAtual.posicao[0] == treasureLoc[i][0] && nodeAtual.posicao[1] == treasureLoc[i][1])
+                return true;
+        }
+        return false;
+    }
+
     public boolean verificarCaminhoPrincipal(List<Node> caminho, int i, int j) {
         if (caminho != null)
             for (int k = 0; k < caminho.size(); k++) {
@@ -116,27 +133,38 @@ public class Main {
             else System.out.print(" " + i + " ");
 
             for (int j = 0; j < Mapa[i].length; j++) {
-                if (Mapa[i][j] == '1')
+                if (Mapa[i][j] == '▓')
                     System.out.print(BLACK + "   " + RESET); //se for parede
                 else if (Mapa[i][j] == '|')
                     System.out.print(GREEN + " " + Mapa[i][j] + " EXIT" + RESET); //se por saída
                 else if (Mapa[i][j] == '@')
-                    System.out.print(RED + "   " + RESET); //se for o bonequin
+                    System.out.print(RED + ">:)" + RESET); //se for o bonequin
                 else if (Mapa[i][j] == '$')
-                    System.out.print(YELLOW + " $ " + RESET); //se for a grana
+                    System.out.print(YELLOW + "($)" + RESET); //se for a grana
                 else if (verificarCaminhoPrincipal(caminho, i, j) && caminho != null)
                     System.out.print(BLUE + "   " + RESET); //se foi o caminho do boneco
-                else if(verificarCaminhoPrincipal(explorados, i, j) && explorados != null)
+                else if (verificarCaminhoPrincipal(explorados, i, j) && explorados != null)
                     System.out.print(MAGENTA + "   " + RESET);
+                else if (Mapa[i][j] == '1')
+                    System.out.print(GREY + "   " + RESET); //se for pantano
+                else if (Mapa[i][j] == '2')
+                    System.out.print(YELLOW + "   " + RESET); //se for pantano
+                else if (Mapa[i][j] == '3')
+                    System.out.print(GREEN + "   " + RESET); //se for pantano
                 else
-                    System.out.print(WHITE + " " + Mapa[i][j] + " " + RESET); //se for chão de pedra
+                    System.out.print(WHITE + "   " + RESET); //se for chão de pedra
             }
             System.out.println(); // Imprime uma nova linha após cada linha da matriz
         }
     }
 
-    public List<Node> encontrarCaminho(char[][] mapa, int[] inicio, int[] treasureLoc) {
-        //aberta: Esta lista contém os nós que foram descobertos, mas ainda não foram explorados completamente. Isso significa que esses nós foram considerados como possíveis candidatos para fazer parte do caminho ótimo
+    public int verificiarBioma(Node noAtual, char[][] mapa) {
+        return ((int) mapa[noAtual.posicao[0]][noAtual.posicao[1]]);
+
+    }
+
+    public List<Node> encontrarCaminho(char[][] mapa, int[] inicio, int[][] treasureLoc) {
+        //aberta: Esta lista contém os nós descobertos, mas ainda não foram explorados completamente. Isso significa que esses nós foram considerados como possíveis candidatos para fazer parte do caminho ótimo
         List<Node> aberto = new ArrayList<>();
         //fechada: nós que já foram explorados completamente. Quando um nó é removido da lista aberta para ser explorado, ele é movido para a lista fechada.
         List<Node> fechado = new ArrayList<>();
@@ -159,12 +187,12 @@ public class Main {
             fechado.add(noAtual);
 
             // Se o nó atual é o treasureLoc, reconstrói o caminho e retorna
-            if (Arrays.equals(noAtual.posicao, treasureLoc)) {
+            if (isTreasure(treasureLoc, noAtual)) {
                 return reconstruirCaminho(noAtual);
             }
 
             // Gera os sucessores do nó atual
-            List<Node> sucessores = gerarSucessores(noAtual, mapa, treasureLoc);
+            List<Node> sucessores = gerarSucessores(noAtual, mapa);
 
             for (Node sucessor : sucessores) {
                 // Se o sucessor está na lista fechada (ja foi visitado anteriormente)
@@ -172,8 +200,15 @@ public class Main {
                     continue;
                 }
 
-                // Calcula o custo do caminho até o sucessor
-                double novoG = noAtual.g + 1; // Supõe que o custo de movimento entre células adjacentes é 1
+                int bioma = verificiarBioma(noAtual, mapa);
+                int custo = 0;
+
+                // Calcula o custo do caminho até o sucessor com base no bioma atual
+                if (bioma == 0) custo = 1;
+                else if (bioma == 1) custo = 10;
+                else if (bioma == 2) custo = 4;
+                else if (bioma == 3) custo = 20;
+                double novoG = noAtual.g + custo; // Supõe que o custo de movimento entre células adjacentes é 1
 
                 // Se o sucessor não está na lista aberta ou o novo custo é menor que o custo anterior
                 if (!contemNode(aberto, sucessor) || novoG < sucessor.g) {
@@ -194,8 +229,14 @@ public class Main {
         return null;
     }
 
-    public double heurEuclidean(int[] inicio, int[] treasureLoc) {
-        return Math.sqrt(Math.pow(inicio[0] - treasureLoc[0],2) + Math.pow(inicio[1] - treasureLoc[1], 2));
+    public double heurEuclidean(int[] inicio, int[][] treasureLoc) {
+        double h;
+        double lower = 999999;
+        for (int i = 0; i < treasureLoc.length; i++) {
+            h = Math.sqrt(Math.pow(inicio[0] - treasureLoc[i][0], 2) + Math.pow(inicio[1] - treasureLoc[i][1], 2));
+            if (h < lower) lower = h;
+        }
+        return lower;
     }
 
     public List<Node> reconstruirCaminho(Node no) {
@@ -216,13 +257,13 @@ public class Main {
         return false;
     }
 
-    public List<Node> gerarSucessores(Node no, char[][] mapa, int[] treasureLoc) {
+    public List<Node> gerarSucessores(Node no, char[][] mapa) {
         List<Node> sucessores = new ArrayList<>();
 
-        //CIMA      (i-1, j)
-        //BAIXO       (i+1, j)
-        //DIREITA       (i, j+1)
-        //ESQUERDA          (i, j-1)
+        //CIMA (i-1, j)
+        //BAIXO (i+1, j)
+        //DIREITA (i, j+1)
+        //ESQUERDA (i, j-1)
 
         int[][] direcoes = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
 
@@ -231,7 +272,7 @@ public class Main {
             int y = no.posicao[1] + direcao[1];
 
             // Verifica se o sucessor não é uma parede
-            if (mapa[x][y] != '1') {
+            if (mapa[x][y] != '▓') {
                 Node sucessor = new Node(new int[]{x, y}, null, 0, 0, 0);
                 sucessores.add(sucessor);
                 explorados.add(sucessor);
